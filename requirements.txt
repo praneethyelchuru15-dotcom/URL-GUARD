@@ -1,2 +1,6 @@
 requests
 beautifulsoup4
+python-whois
+flask
+flask-cors
+
