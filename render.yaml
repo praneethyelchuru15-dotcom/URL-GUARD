@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: url-guard
+    env: docker
+    plan: free
+    branch: main
+    repo: https://github.com/praneethyelchuru15-dotcom/URL-GUARD
+    healthCheckPath: /
+    startCommand: gunicorn --bind 0.0.0.0:5000 webapp:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
