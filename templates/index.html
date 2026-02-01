@@ -62,11 +62,15 @@
 
     <div class="max-w-6xl mx-auto">
         <!-- Header -->
-        <header class="text-center mb-12 animate-fade-in-down">
+        <header class="text-center mb-12 animate-fade-in-down relative">
             <h1 class="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent mb-4">
                 <i class="fas fa-shield-alt mr-2"></i>URL Guard
             </h1>
             <p class="text-gray-400 text-lg">Next-Gen AI Network Security Scanner</p>
+            <a href="/history"
+                class="absolute top-0 right-0 mt-2 mr-2 bg-gray-800 hover:bg-gray-700 text-sm text-gray-300 px-4 py-2 rounded-lg transition-all">
+                <i class="fas fa-history mr-2"></i>History
+            </a>
         </header>
 
         <!-- Input Section -->
@@ -120,6 +124,18 @@
                 </div>
             </div>
 
+            <!-- Recommendations -->
+            <div id="recommendationsSection" class="hidden mb-12 animate-fade-in-up delay-100">
+                <div class="glass-card rounded-2xl p-8 border-l-4 border-blue-500 shadow-lg">
+                    <h3 class="text-2xl font-bold mb-4 text-blue-400">
+                        <i class="fas fa-clipboard-check mr-2"></i>Remediation Plan
+                    </h3>
+                    <ul class="space-y-3" id="recommendationsList">
+                        <!-- Dynamic List -->
+                    </ul>
+                </div>
+            </div>
+
             <!-- Detailed Modules Grid -->
             <h3 class="text-2xl font-bold mb-6 border-l-4 border-accent pl-4">Detailed Findings</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="modulesGrid">
@@ -161,9 +177,27 @@
             document.getElementById('results').classList.remove('hidden');
 
             // Basic Info
+            // Basic Info
             document.getElementById('targetUrl').textContent = report.url;
             document.getElementById('statusCode').textContent = report.status_code;
-            document.getElementById('scanTime').textContent = new Date().toLocaleTimeString();
+            document.getElementById('scanTime').textContent = report.scan_duration_seconds + "s";
+
+            // Recommendations
+            const recList = document.getElementById('recommendationsList');
+            const recSection = document.getElementById('recommendationsSection');
+            recList.innerHTML = '';
+
+            if (report.recommendations && report.recommendations.length > 0) {
+                recSection.classList.remove('hidden');
+                report.recommendations.forEach(rec => {
+                    recList.innerHTML += `<li class="flex items-start text-gray-300">
+                        <i class="fas fa-check-circle text-blue-500 mt-1 mr-3"></i>
+                        <span>${rec}</span>
+                    </li>`;
+                });
+            } else {
+                recSection.classList.add('hidden');
+            }
 
             // Risk Score
             const score = report.total_risk_score;

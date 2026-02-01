@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan History | URL Guard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0f172a',
+                        card: '#1e293b',
+                        primary: '#3b82f6',
+                        accent: '#8b5cf6',
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        danger: '#ef4444'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+
+<body class="p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-12">
+            <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+                <i class="fas fa-history mr-2"></i>Scan History
+            </h1>
+            <a href="/" class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-bold transition-all">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Scanner
+            </a>
+        </header>
+
+        <!-- History Table -->
+        <div class="glass-card rounded-2xl overflow-hidden shadow-2xl">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-800/50 text-gray-400 uppercase text-xs font-bold">
+                        <tr>
+                            <th class="px-6 py-4">ID</th>
+                            <th class="px-6 py-4">Analyzed URL</th>
+                            <th class="px-6 py-4">Date & Time</th>
+                            <th class="px-6 py-4 text-center">Risk Score</th>
+                            <th class="px-6 py-4 text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody" class="divide-y divide-gray-700">
+                        <tr>
+                            <td colspan="5" class="px-6 py-8 text-center text-gray-500 italic">Loading history...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadHistory() {
+            try {
+                const response = await fetch('/api/history');
+                const history = await response.json();
+
+                const tbody = document.getElementById('historyTableBody');
+                tbody.innerHTML = '';
+
+                if (history.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No scan history found.</td></tr>';
+                    return;
+                }
+
+                history.forEach(scan => {
+                    let statusColor = "text-green-400";
+                    let statusText = "SAFE";
+                    if (scan.risk_score >= 50) { statusColor = "text-red-400"; statusText = "DANGEROUS"; }
+                    else if (scan.risk_score > 0) { statusColor = "text-yellow-400"; statusText = "SUSPICIOUS"; }
+
+                    const row = `
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="px-6 py-4 font-mono text-sm text-gray-400">#${scan.id}</td>
+                            <td class="px-6 py-4 text-blue-300 font-medium truncate max-w-xs">${scan.url}</td>
+                            <td class="px-6 py-4 text-gray-400 text-sm">${new Date(scan.timestamp).toLocaleString()}</td>
+                            <td class="px-6 py-4 text-center font-bold text-white">${scan.risk_score}</td>
+                            <td class="px-6 py-4 text-center font-bold ${statusColor}">${statusText}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error("Error loading history:", error);
+                document.getElementById('historyTableBody').innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-red-400">Failed to load history.</td></tr>';
+            }
+        }
+
+        loadHistory();
+    </script>
+</body>
+
+</html>

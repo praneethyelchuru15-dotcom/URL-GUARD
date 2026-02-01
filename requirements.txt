@@ -4,4 +4,9 @@ python-whois
 flask
 flask-cors
 gunicorn
+flask-compress
+dnspython
+python-dotenv
+flask-sqlalchemy
+psycopg2-binary
 
